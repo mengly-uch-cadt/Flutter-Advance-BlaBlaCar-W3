@@ -4,18 +4,16 @@ import 'package:flutter/material.dart';
 /// Definition of App colors.
 ///
 class BlaColors {
-  static Color primary            = const Color(0xFF00aff5);
-
-  static Color backgroundAccent   = const Color(0xFFEDEDED);
- 
-  static Color neutralDark        = const Color(0xFF054752);
-  static Color neutral            = const Color(0xFF3d5c62);
-  static Color neutralLight       = const Color(0xFF708c91);
-  static Color neutralLighter     = const Color(0xFF92A7AB);
-
-  static Color greyLight          = const Color(0xFFE2E2E2);
-  
-  static Color white              = Colors.white;
+  static Color primary          = const Color(0xFF00aff5);
+  static Color blue             = const Color(0xFF2FD2FF);
+  static Color backgroundAccent = const Color(0xFFEDEDED);
+  static Color neutralDark      = const Color(0xFF054752);
+  static Color neutral          = const Color(0xFF3d5c62);
+  static Color neutralLight     = const Color(0xFF708c91);
+  static Color neutralLighter   = const Color(0xFF92A7AB);
+  static Color greyLight        = const Color(0xFFE2E2E2);
+  static Color white            = Colors.white;
+  static Color transparent      = Colors.transparent;
 
   static Color get backGroundColor { 
     return BlaColors.primary;

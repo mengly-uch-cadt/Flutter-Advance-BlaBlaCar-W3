@@ -1,5 +1,6 @@
 import 'package:blabla_car/model/ride_pref/ride_pref_input_tile.dart';
 import 'package:blabla_car/theme/theme.dart';
+import 'package:blabla_car/utils/animations_util.dart';
 import 'package:blabla_car/utils/date_time_util.dart';
 import 'package:blabla_car/widgets/actions/bla_button.dart';
 import 'package:blabla_car/widgets/display/bla_divider.dart';
@@ -62,10 +63,8 @@ class _RidePrefFormState extends State<RidePrefForm> {
   // ----------------------------------
   void onDeparturePressed() async {
     // 1- Select a location
-    Location? selectedLocation =
-        await Navigator.of(context).push<Location>(MaterialPageRoute(
-            builder: (ctx) => BlaLocationPicker( )));
-
+    Location? selectedLocation = await Navigator.of(context).push<Location>(
+        AnimationUtils.createBottomToTopRoute(BlaLocationPicker(initLocation: arrival,)));
     // 2- Update the from if needed
     if (selectedLocation != null) {
       setState(() {

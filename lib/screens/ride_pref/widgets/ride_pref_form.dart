@@ -1,14 +1,15 @@
 import 'package:blabla_car/model/ride_pref/ride_pref_input_tile.dart';
-import 'package:blabla_car/theme/theme.dart';
-import 'package:blabla_car/utils/animations_util.dart';
-import 'package:blabla_car/utils/date_time_util.dart';
-import 'package:blabla_car/widgets/actions/bla_button.dart';
-import 'package:blabla_car/widgets/display/bla_divider.dart';
-import 'package:blabla_car/widgets/inputs/bla_location_picker.dart';
 import 'package:flutter/material.dart';
  
 import '../../../model/ride/locations.dart';
 import '../../../model/ride_pref/ride_pref.dart';
+import '../../../theme/theme.dart';
+import '../../../utils/animations_util.dart';
+import '../../../utils/date_time_util.dart';
+import '../../../widgets/actions/bla_button.dart';
+import '../../../widgets/display/bla_divider.dart';
+import '../../../widgets/inputs/bla_location_picker.dart';
+import '../../rides/rides_screen.dart';
  
 ///
 /// A Ride Preference From is a view to select:
@@ -44,6 +45,7 @@ class _RidePrefFormState extends State<RidePrefForm> {
   @override
   void initState() {
     super.initState();
+    // If a RidePref is given, we initialize the form with its values
     if (widget.initRidePref != null) {
       departure = widget.initRidePref!.departure;
       arrival = widget.initRidePref!.arrival;
@@ -61,10 +63,15 @@ class _RidePrefFormState extends State<RidePrefForm> {
   // ----------------------------------
   // Handle events
   // ----------------------------------
+ 
+
+// 1 - Select a location
   void onDeparturePressed() async {
     // 1- Select a location
     Location? selectedLocation = await Navigator.of(context).push<Location>(
-        AnimationUtils.createBottomToTopRoute(BlaLocationPicker(initLocation: arrival,)));
+        AnimationUtils.createBottomToTopRoute(BlaLocationPicker(initLocation: departure,))
+        );
+
     // 2- Update the from if needed
     if (selectedLocation != null) {
       setState(() {
@@ -73,11 +80,11 @@ class _RidePrefFormState extends State<RidePrefForm> {
     }
   }
 
+  // 2 - Select a location
   void onArrivalPressed() async {
     // 1- Select a location
-    Location? selectedLocation =
-        await Navigator.of(context).push<Location>(MaterialPageRoute(
-            builder: (ctx) => BlaLocationPicker(  )));
+    Location? selectedLocation = await Navigator.of(context).push<Location>(
+        AnimationUtils.createBottomToTopRoute(BlaLocationPicker(initLocation: arrival,)));
 
     // 2- Update the from if needed
     if (selectedLocation != null) {
@@ -86,24 +93,45 @@ class _RidePrefFormState extends State<RidePrefForm> {
       });
     }
   }
+  
+  // 3 - Submit the form
+  void onSubmit() {
+        bool hasDeparture = departure != null;
+    bool hasArrival = arrival != null;
 
-  void onSubmit() {}
+    if (hasDeparture && hasArrival) {
+      // 1- Crea a Ride Pref from user inputs
+      RidePref newRideRef = RidePref(
+          departure: departure!,
+          departureDate: departureDate,
+          arrival: arrival!,
+          requestedSeats: requestedSeats);
 
+      // 2 - Navigate to the rides screen (with a buttom to top animation)
+      Navigator.of(context)
+          .push(AnimationUtils.createBottomToTopRoute(RidesScreen(
+        initialRidePref: newRideRef,
+      )));
+    }
+  }
+
+ // 4 - Swap the departure and arrival
   void onSwappingLocationPressed() {
     setState(() {
       // We switch only if both departure and arrivate are defined
-      if (departure != null && arrival != null) {
-        Location temp = departure!;
-        departure = Location.copy(arrival!);
-        arrival = Location.copy(temp);
-      }
-    });
+        if (departure != null && arrival != null) {
+          Location temp = departure!;
+          departure = Location.copy(arrival!);
+          arrival = Location.copy(temp);
+        }
+      });
   }
+
 
   // ----------------------------------
   // Compute the widgets rendering
   // ----------------------------------
-  String get departureLabel =>
+    String get departureLabel =>
       departure != null ? departure!.name : "Leaving from";
   String get arrivalLabel => arrival != null ? arrival!.name : "Going to";
 
@@ -113,47 +141,46 @@ class _RidePrefFormState extends State<RidePrefForm> {
   String get dateLabel => DateTimeUtils.formatDateTime(departureDate);
   String get numberLabel => requestedSeats.toString();
 
-  bool get switchVisible => arrival != null && departure != null;
+  bool get switchVisible => arrival!=null && departure != null;
+
 
   // ----------------------------------
   // Build the widgets
   // ----------------------------------
   @override
   Widget build(BuildContext context) {
-    print("=====================================");
-    print("Building the form: $dateLabel, $arrival");
     return Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+        children: [ 
+          
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: BlaSpacings.m),
             child: Column(
               children: [
-                // 1 - Input the ride departure location
+                // 1 - Input the ride departure
                 RidePrefInputTile(
-                  isPlaceHolder: showDeparturePLaceHolder,
-                  title: departureLabel,
-                  leftIcon: Icons.trip_origin,
-                  onPressed: onDeparturePressed,
-                  rightIcon: switchVisible ? Icons.swap_vert : null,
-                  onRightIconPressed:
-                      switchVisible ? onSwappingLocationPressed : null,
-                ),
+                    isPlaceHolder: showDeparturePLaceHolder,
+                    title: departureLabel,
+                    leftIcon: Icons.location_on,
+                    onPressed: onDeparturePressed,
+                    rightIcon: switchVisible? Icons.swap_vert:null,
+                    onRightIconPressed: switchVisible? onSwappingLocationPressed: null,
+                    ),
                 const BlaDivider(),
 
-                // 2 - Input the ride arrival location
+                // 2 - Input the ride arrival
                 RidePrefInputTile(
                     isPlaceHolder: showArrivalPLaceHolder,
                     title: arrivalLabel,
-                    leftIcon: Icons.trip_origin,
+                    leftIcon: Icons.location_on,
                     onPressed: onArrivalPressed),
                 const BlaDivider(),
 
                 // 3 - Input the ride date
                 RidePrefInputTile(
                     title: dateLabel,
-                    leftIcon: Icons.date_range,
+                    leftIcon: Icons.calendar_month,
                     onPressed: () => {}),
                 const BlaDivider(),
 
@@ -168,6 +195,8 @@ class _RidePrefFormState extends State<RidePrefForm> {
 
           // 5 - Launch a search
           BlaButton(text: 'Search', onPressed: onSubmit),
-      ]);
+       
+ 
+        ]);
   }
 }

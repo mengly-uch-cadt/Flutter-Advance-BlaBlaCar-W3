@@ -18,6 +18,22 @@ class BlaLocationPicker extends StatefulWidget {
 class _BlaLocationPickerState extends State<BlaLocationPicker> {
   List<Location> filteredLocations = [];
  
+@override
+  void initState() {
+    super.initState();
+
+    if (widget.initLocation != null) {
+      filteredLocations = getLocationsFor(widget.initLocation!.name);
+    }
+  }
+
+  List<Location> getLocationsFor(String text) {
+    return LocationsService.availableLocations
+        .where((location) =>
+            location.name.toUpperCase().contains(text.toUpperCase()))
+        .toList();
+  }
+
 
   void onBackSelected() {
     Navigator.of(context).pop();
